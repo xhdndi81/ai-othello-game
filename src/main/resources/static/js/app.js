@@ -18,6 +18,33 @@ let validMoves = [];
 let lastSpokenText = "";
 let lastSpokenTime = 0;
 
+// 전체 화면 전환 함수
+function requestFullscreen() {
+    const elem = document.documentElement;
+    if (elem.requestFullscreen) {
+        elem.requestFullscreen().catch(err => {
+            console.log('Fullscreen request failed:', err);
+        });
+    } else if (elem.webkitRequestFullscreen) { // Safari
+        elem.webkitRequestFullscreen();
+    } else if (elem.msRequestFullscreen) { // IE/Edge
+        elem.msRequestFullscreen();
+    }
+}
+
+// 전체 화면 해제 함수
+function exitFullscreen() {
+    if (document.exitFullscreen) {
+        document.exitFullscreen().catch(err => {
+            console.log('Exit fullscreen failed:', err);
+        });
+    } else if (document.webkitExitFullscreen) { // Safari
+        document.webkitExitFullscreen();
+    } else if (document.msExitFullscreen) { // IE/Edge
+        document.msExitFullscreen();
+    }
+}
+
 // 음성 출력 함수
 function speak(text) {
     if (typeof speechSynthesis === 'undefined' || !text) return;
@@ -377,6 +404,8 @@ $(document).ready(function() {
                 userName = user.name;
                 $('#login-container').hide();
                 $('#game-container').show();
+                // 전체 화면으로 전환
+                requestFullscreen();
                 initBoard();
                 
                 const welcome = `안녕, ${userName}야! 나는 너의 오셀로 친구야. 우리 재미있게 놀아보자!`;
@@ -395,6 +424,22 @@ $(document).ready(function() {
         }
         $('#waiting-rooms-container').hide();
         $('#login-container').show();
+        // 전체 화면 해제
+        exitFullscreen();
+    });
+    
+    // 나가기 버튼 클릭 이벤트
+    $(document).on('click', '#btn-logout', function() {
+        // 게임 종료 처리
+        if (gameMode === 'multi' && typeof stompClient !== 'undefined' && stompClient && stompClient.connected) {
+            stompClient.disconnect();
+        }
+        
+        // 전체 화면 해제
+        exitFullscreen();
+        
+        // 페이지 새로고침 (게임 상태 초기화)
+        location.reload();
     });
     
     $(document).on('click', '#btn-refresh-rooms', function() {
@@ -406,12 +451,7 @@ $(document).ready(function() {
         createRoom();
     });
     
-    $('#btn-logout').on('click', () => {
-        if (typeof stompClient !== 'undefined' && stompClient && stompClient.connected) {
-            stompClient.disconnect();
-        }
-        location.reload();
-    });
+    // 나가기 버튼 핸들러는 위에서 이미 정의됨 (중복 방지)
     
     $('#btn-history').on('click', () => {
         if (!userId) return;

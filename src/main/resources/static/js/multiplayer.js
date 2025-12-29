@@ -433,6 +433,11 @@ function createRoom() {
             $('#waiting-rooms-container').hide();
             $('#game-container').show();
             
+            // 전체 화면으로 전환
+            if (typeof requestFullscreen === 'function') {
+                requestFullscreen();
+            }
+            
             connectWebSocket(roomId);
             initBoard();
             
@@ -474,6 +479,11 @@ function joinRoom(roomIdParam) {
             
             $('#waiting-rooms-container').hide();
             $('#game-container').show();
+            
+            // 전체 화면으로 전환
+            if (typeof requestFullscreen === 'function') {
+                requestFullscreen();
+            }
             
             connectWebSocket(roomId);
             
