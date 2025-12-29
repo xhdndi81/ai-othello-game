@@ -95,7 +95,7 @@ CREATE DATABASE games CHARACTER SET utf8mb4;
 ```yaml
 spring:
   datasource:
-    url: jdbc:mariadb://localhost:3306/games
+    url: jdbc:mariadb://localhost:3306/your-database-schema
     username: your-database-username
     password: your-database-password
 
