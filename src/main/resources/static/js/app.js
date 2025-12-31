@@ -408,7 +408,7 @@ $(document).ready(function() {
                 requestFullscreen();
                 initBoard();
                 
-                const welcome = `안녕, ${userName}야! 나는 너의 오셀로 친구야. 우리 재미있게 놀아보자!`;
+                const welcome = `안녕! 나는 너의 오셀로 친구야. 우리 재미있게 놀아보자!`;
                 $('#ai-message').text(welcome);
                 speak(welcome);
                 
@@ -578,10 +578,12 @@ function startNudgeTimer() {
         if (currentTurn === 'B' && !OTHELLO.isGameOver(boardState)) {
             const nudges = [
                 "어디로 둘지 결정했니? 😊",
-                `${userName}야, 천천히 생각해도 돼!`,
+                "천천히 생각해도 돼!",
                 "선생님은 기다리고 있어!",
-                `${userName}야, 어떤 전략을 세우고 있니?`,
-                "선생님은 준비 다 됐어! 천천히 해봐~"
+                "어떤 전략을 세우고 있니?",
+                "선생님은 준비 다 됐어! 천천히 해봐~",
+                "좋은 수를 찾고 있구나!",
+                "신중하게 생각하는 모습이 멋져요!"
             ];
             const ment = nudges[Math.floor(Math.random() * nudges.length)];
             $('#ai-message').text(ment);

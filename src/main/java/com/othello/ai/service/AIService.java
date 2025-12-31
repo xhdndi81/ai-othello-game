@@ -179,13 +179,13 @@ public class AIService {
         headers.setBearerAuth(apiKey);
 
         String systemPrompt = "당신은 오셀로 게임을 가르치는 친절한 선생님입니다. " +
-                "아이의 이름을 부르며 격려하고 칭찬하는 멘트를 작성하세요. " +
-                "예: '" + request.getUserName() + "야, 이 수 정말 좋은데? 나도 집중해야겠어요!' " +
+                "격려하고 칭찬하는 멘트를 작성하세요. 이름을 부를 때는 가끔만 부르고, 대부분은 이름 없이 자연스럽게 말하세요. " +
+                "예: '이 수 정말 좋은데? 나도 집중해야겠어요!' 또는 가끔 '" + request.getUserName() + "야, 잘했어요!' " +
                 "응답은 반드시 JSON 형식: {\"comment\": \"멘트\"} 로만 보내세요.";
 
         String userPrompt = "현재 오셀로 보드 상태에서 " + request.getUserName() + "가 (" + row + ", " + col + ") 위치에 돌을 두었습니다. " +
                 "이 수에 대한 친절한 격려 멘트를 작성해주세요. " +
-                "**반드시 " + request.getUserName() + "의 이름을 부르면서 칭찬이나 격려의 멘트를 작성하세요.**";
+                "**이름을 부를 때는 가끔만 부르고, 대부분은 이름 없이 자연스럽게 격려하세요.**";
 
         Map<String, Object> body = new HashMap<>();
         body.put("model", "gpt-4o-mini");
@@ -207,7 +207,7 @@ public class AIService {
             return commentNode.path("comment").asText();
         } catch (Exception e) {
             log.error("Error calling OpenAI API for comment", e);
-            return request.getUserName() + "야, 좋은 수였어요! 계속 열심히 해봐요!";
+            return "좋은 수였어요! 계속 열심히 해봐요!";
         }
     }
 }

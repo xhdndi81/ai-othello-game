@@ -90,21 +90,27 @@ button:active {
     justify-content: space-between;
     height: auto;
     min-height: 80px;
+    max-height: 140px;
     box-sizing: border-box;
     z-index: 100;
-    overflow: visible;
+    overflow: hidden;
+    position: relative;
 }
 
 .ai-chat-area {
-    flex: 1;
+    flex: 1 1 auto;
     min-width: 0;
     max-width: calc(100% - 200px);
+    overflow: hidden;
 }
 
 .ai-character {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 10px;
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: 100%;
 }
 
 #ai-img {
@@ -126,9 +132,12 @@ button:active {
     text-align: left;
     white-space: normal;
     word-break: keep-all;
-    max-height: none;
-    overflow-y: visible;
+    max-height: 70px;
+    overflow-y: auto;
+    overflow-x: hidden;
     font-weight: 500;
+    flex: 1 1 auto;
+    min-width: 0;
 }
 
 .speech-bubble:after {
@@ -154,6 +163,8 @@ button:active {
     flex-shrink: 0;
     min-width: 180px;
     max-width: 200px;
+    height: auto;
+    overflow: visible;
 }
 
 .status-container {
@@ -239,12 +250,14 @@ button:active {
 
 /* Main Content Area */
 .main-content {
-    flex: 1;
+    flex: 1 1 auto;
     display: flex;
     justify-content: center;
     align-items: center;
     padding: 0;
     overflow: hidden;
+    min-height: 0;
+    position: relative;
 }
 
 .board-section {
@@ -255,6 +268,8 @@ button:active {
     justify-content: center;
     align-items: center;
     gap: 5px;
+    position: relative;
+    flex-shrink: 0;
 }
 
 /* Othello Board */
@@ -398,16 +413,19 @@ button:active {
         width: 280px;
         min-width: 250px;
         max-width: 320px;
-        height: 100%;
+        height: 100vh;
+        max-height: 100vh;
         flex-direction: column;
-        justify-content: flex-start;
+        justify-content: space-between;
         padding: 15px 12px;
         border-right: 2px solid #f0f0f0;
         border-bottom: none;
         box-shadow: 2px 0 10px rgba(0,0,0,0.05);
         overflow-y: auto;
-        overflow-x: visible;
+        overflow-x: hidden;
         box-sizing: border-box;
+        flex-shrink: 0;
+        position: relative;
     }
 
     .ai-chat-area {
@@ -416,7 +434,9 @@ button:active {
         max-width: 100%;
         margin-bottom: 15px;
         min-width: 0;
-        overflow: visible;
+        overflow: hidden;
+        position: relative;
+        flex-shrink: 0;
     }
 
     .ai-character {
@@ -445,8 +465,10 @@ button:active {
         word-break: keep-all;
         overflow-wrap: break-word;
         line-height: 1.5;
-        overflow: visible;
+        overflow-y: auto;
+        overflow-x: hidden;
         white-space: normal;
+        max-height: 100px;
     }
 
     .speech-bubble p {
@@ -471,9 +493,10 @@ button:active {
         width: 100%;
         max-width: 100%;
         margin-left: 0;
-        margin-top: 15px;
+        margin-top: auto;
         min-width: auto;
         max-width: 100%;
+        align-self: flex-end;
     }
 
     .status-container {
