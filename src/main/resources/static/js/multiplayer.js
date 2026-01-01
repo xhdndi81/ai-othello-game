@@ -24,6 +24,25 @@ function connectWebSocket(roomIdParam) {
         });
     }, function(error) {
         console.error('WebSocket connection error:', error);
+        
+        // 호스트인 경우 방 삭제 API 호출
+        if (isHost && roomId && userId) {
+            $.ajax({
+                url: '/api/rooms/' + roomId,
+                method: 'DELETE',
+                contentType: 'application/json',
+                data: JSON.stringify({ userId: userId }),
+                success: function() {
+                    console.log('Room deleted due to WebSocket connection failure');
+                },
+                error: function(xhr) {
+                    console.error('Failed to delete room after WebSocket error:', xhr.responseText);
+                }
+            });
+        }
+        
+        // 사용자에게 알림
+        alert('서버와 연결할 수 없습니다. 페이지를 새로고침해주세요.');
     });
 }
 
@@ -32,6 +51,22 @@ function sendMoveToServer(row, col) {
     if (!stompClient || !stompClient.connected) {
         console.error('WebSocket not connected');
         alert('서버와 연결이 끊어졌습니다.');
+        
+        // 호스트인 경우 방 삭제 API 호출
+        if (isHost && roomId && userId) {
+            $.ajax({
+                url: '/api/rooms/' + roomId,
+                method: 'DELETE',
+                contentType: 'application/json',
+                data: JSON.stringify({ userId: userId }),
+                success: function() {
+                    console.log('Room deleted due to WebSocket disconnection');
+                },
+                error: function(xhr) {
+                    console.error('Failed to delete room after WebSocket disconnection:', xhr.responseText);
+                }
+            });
+        }
         return;
     }
     
@@ -171,6 +206,22 @@ const NUDGE_COOLDOWN_MS = 5000; // 5초 쿨다운
 function sendNudgeToServer() {
     if (!stompClient || !stompClient.connected) {
         console.error('WebSocket not connected');
+        
+        // 호스트인 경우 방 삭제 API 호출
+        if (isHost && roomId && userId) {
+            $.ajax({
+                url: '/api/rooms/' + roomId,
+                method: 'DELETE',
+                contentType: 'application/json',
+                data: JSON.stringify({ userId: userId }),
+                success: function() {
+                    console.log('Room deleted due to WebSocket disconnection');
+                },
+                error: function(xhr) {
+                    console.error('Failed to delete room after WebSocket disconnection:', xhr.responseText);
+                }
+            });
+        }
         return;
     }
     
@@ -357,6 +408,22 @@ function sendVoiceMessageToServer(text) {
     if (!stompClient || !stompClient.connected) {
         console.error('WebSocket not connected');
         alert('서버와 연결이 끊어졌습니다. 페이지를 새로고침해주세요.');
+        
+        // 호스트인 경우 방 삭제 API 호출
+        if (isHost && roomId && userId) {
+            $.ajax({
+                url: '/api/rooms/' + roomId,
+                method: 'DELETE',
+                contentType: 'application/json',
+                data: JSON.stringify({ userId: userId }),
+                success: function() {
+                    console.log('Room deleted due to WebSocket disconnection');
+                },
+                error: function(xhr) {
+                    console.error('Failed to delete room after WebSocket disconnection:', xhr.responseText);
+                }
+            });
+        }
         return;
     }
     

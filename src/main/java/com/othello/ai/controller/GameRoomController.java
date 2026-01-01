@@ -53,5 +53,20 @@ public class GameRoomController {
     public ResponseEntity<GameStateDto> getGameState(@PathVariable Long roomId) {
         return ResponseEntity.ok(gameRoomService.getGameState(roomId));
     }
+
+    @DeleteMapping("/{roomId}")
+    public ResponseEntity<?> deleteRoom(
+            @PathVariable Long roomId,
+            @RequestBody Map<String, Long> request) {
+        Long userId = request.get("userId");
+        try {
+            gameRoomService.deleteRoom(roomId, userId);
+            return ResponseEntity.ok().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(403).body(Map.of("error", e.getMessage()));
+        }
+    }
 }
 

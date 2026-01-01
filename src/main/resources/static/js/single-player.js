@@ -43,10 +43,13 @@ function makeAIMove() {
             renderBoard(boardState);
             updateStatus();
             
-            // AI 코멘트 표시
+            // AI 코멘트 표시 (코멘트가 있을 때만)
             if (response.comment) {
                 $('#ai-message').text(response.comment);
                 speak(response.comment);
+            } else {
+                // 코멘트가 없으면 기본 메시지 표시 (음성 출력 없음)
+                $('#ai-message').text('좋아요! 계속 진행해봐요! 😊');
             }
             
             checkGameOver();

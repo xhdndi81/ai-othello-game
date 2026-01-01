@@ -430,16 +430,44 @@ $(document).ready(function() {
     
     // 나가기 버튼 클릭 이벤트
     $(document).on('click', '#btn-logout', function() {
-        // 게임 종료 처리
-        if (gameMode === 'multi' && typeof stompClient !== 'undefined' && stompClient && stompClient.connected) {
-            stompClient.disconnect();
+        // 멀티플레이어 모드이고 호스트인 경우 방 삭제 API 호출
+        if (gameMode === 'multi' && roomId && userId && isHost) {
+            $.ajax({
+                url: '/api/rooms/' + roomId,
+                method: 'DELETE',
+                contentType: 'application/json',
+                data: JSON.stringify({ userId: userId }),
+                success: function() {
+                    console.log('Room deleted successfully');
+                },
+                error: function(xhr) {
+                    console.error('Failed to delete room:', xhr.responseText);
+                },
+                complete: function() {
+                    // WebSocket 연결 해제
+                    if (typeof stompClient !== 'undefined' && stompClient && stompClient.connected) {
+                        stompClient.disconnect();
+                    }
+                    
+                    // 전체 화면 해제
+                    exitFullscreen();
+                    
+                    // 페이지 새로고침 (게임 상태 초기화)
+                    location.reload();
+                }
+            });
+        } else {
+            // 게스트이거나 싱글플레이어 모드인 경우
+            if (gameMode === 'multi' && typeof stompClient !== 'undefined' && stompClient && stompClient.connected) {
+                stompClient.disconnect();
+            }
+            
+            // 전체 화면 해제
+            exitFullscreen();
+            
+            // 페이지 새로고침 (게임 상태 초기화)
+            location.reload();
         }
-        
-        // 전체 화면 해제
-        exitFullscreen();
-        
-        // 페이지 새로고침 (게임 상태 초기화)
-        location.reload();
     });
     
     $(document).on('click', '#btn-refresh-rooms', function() {

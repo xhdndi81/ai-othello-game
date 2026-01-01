@@ -69,6 +69,25 @@ public class GameRoomService {
     }
 
     @Transactional
+    public void deleteRoom(Long roomId, Long userId) {
+        GameRoom room = gameRoomRepository.findById(roomId)
+                .orElseThrow(() -> new IllegalArgumentException("Room not found"));
+
+        // 호스트만 방을 삭제할 수 있도록 권한 확인
+        if (!room.getHost().getId().equals(userId)) {
+            throw new IllegalStateException("Only the host can delete the room");
+        }
+
+        // OthelloGameData 먼저 삭제 (외래키 제약조건)
+        othelloGameDataRepository.findByRoom(room).ifPresent(othelloGameDataRepository::delete);
+
+        // GameRoom 삭제
+        gameRoomRepository.delete(room);
+        
+        log.info("Room {} deleted by host {}", roomId, userId);
+    }
+
+    @Transactional
     public void handleUserDisconnect(Long userId) {
         List<GameRoom> allRooms = gameRoomRepository.findAll();
         for (GameRoom room : allRooms) {
@@ -81,9 +100,13 @@ public class GameRoomService {
                 processDisconnectWin(room, isHost);
             } else if (room.getStatus() == GameRoom.RoomStatus.WAITING) {
                 if (isHost) {
-                    room.setStatus(GameRoom.RoomStatus.FINISHED);
-                    gameRoomRepository.save(room);
-                    log.info("Waiting room {} closed because host {} disconnected", room.getId(), userId);
+                    // WAITING 상태의 방에서 호스트가 나가면 방 삭제
+                    try {
+                        deleteRoom(room.getId(), userId);
+                        log.info("Waiting room {} deleted because host {} disconnected", room.getId(), userId);
+                    } catch (Exception e) {
+                        log.error("Error deleting room {} when host {} disconnected", room.getId(), userId, e);
+                    }
                 }
             } else if (room.getStatus() == GameRoom.RoomStatus.FINISHED) {
                 if (isGuest) {
@@ -91,8 +114,16 @@ public class GameRoomService {
                     gameRoomRepository.save(room);
                     log.info("Guest {} left finished room {}", userId, room.getId());
                 } else if (isHost) {
-                    log.info("Host {} left finished room {}", userId, room.getId());
-                    if (room.getGuest() != null) {
+                    // FINISHED 상태의 방에서 호스트가 나가고 게스트가 없으면 방 삭제
+                    if (room.getGuest() == null) {
+                        try {
+                            deleteRoom(room.getId(), userId);
+                            log.info("Finished room {} deleted because host {} disconnected and no guest", room.getId(), userId);
+                        } catch (Exception e) {
+                            log.error("Error deleting room {} when host {} disconnected", room.getId(), userId, e);
+                        }
+                    } else {
+                        log.info("Host {} left finished room {}", userId, room.getId());
                         Map<String, Object> notification = new HashMap<>();
                         notification.put("status", "FINISHED");
                         notification.put("message", "방장이 나갔습니다. 방이 닫힙니다.");

@@ -56,10 +56,47 @@ public class AIService {
         
         String moveStr = bestMove[0] + "," + bestMove[1];
         
-        // OpenAI GPT로 격려 멘트 생성
-        String comment = generateComment(request, bestMove[0], bestMove[1]);
+        // 확률 기반으로 코멘트 생성 여부 결정
+        String comment = null;
+        if (shouldGenerateComment(boardState, bestMove[0], bestMove[1])) {
+            comment = generateComment(request, bestMove[0], bestMove[1]);
+        }
         
         return new AIResponse(moveStr, comment);
+    }
+    
+    /**
+     * 코멘트 생성 여부를 확률 기반으로 결정
+     */
+    private boolean shouldGenerateComment(String boardState, int row, int col) {
+        // 게임 진행 상황 파악
+        int[] counts = othelloEngine.countPieces(boardState);
+        int totalPieces = counts[0] + counts[1];
+        
+        // 기본 확률: 30%
+        double probability = 0.3;
+        
+        // 모서리 수인 경우 확률 증가 (50%)
+        int[] corners = {0, 7, 56, 63};
+        int position = row * 8 + col;
+        for (int corner : corners) {
+            if (position == corner) {
+                probability = 0.5;
+                break;
+            }
+        }
+        
+        // 게임 초반(10수 이내)은 확률 감소 (20%)
+        if (totalPieces < 10) {
+            probability = 0.2;
+        }
+        // 게임 후반(40수 이후)은 확률 증가 (40%)
+        else if (totalPieces > 40) {
+            probability = Math.max(probability, 0.4);
+        }
+        
+        // 랜덤 결정
+        return Math.random() < probability;
     }
 
     /**
@@ -179,13 +216,15 @@ public class AIService {
         headers.setBearerAuth(apiKey);
 
         String systemPrompt = "당신은 오셀로 게임을 가르치는 친절한 선생님입니다. " +
-                "격려하고 칭찬하는 멘트를 작성하세요. 이름을 부를 때는 가끔만 부르고, 대부분은 이름 없이 자연스럽게 말하세요. " +
-                "예: '이 수 정말 좋은데? 나도 집중해야겠어요!' 또는 가끔 '" + request.getUserName() + "야, 잘했어요!' " +
+                "격려하고 칭찬하는 멘트를 작성하세요. " +
+                "**중요: 이름(" + request.getUserName() + ")을 부르는 것은 절대 금지입니다. 이름 없이 자연스럽게 격려하세요.** " +
+                "예: '이 수 정말 좋은데? 나도 집중해야겠어요!' 또는 '좋은 선택이에요! 계속 잘하고 있어요!' " +
+                "이름을 언급하지 말고, '너', '당신' 같은 호칭도 사용하지 말고, 그냥 자연스럽게 말하세요. " +
                 "응답은 반드시 JSON 형식: {\"comment\": \"멘트\"} 로만 보내세요.";
 
-        String userPrompt = "현재 오셀로 보드 상태에서 " + request.getUserName() + "가 (" + row + ", " + col + ") 위치에 돌을 두었습니다. " +
+        String userPrompt = "현재 오셀로 보드 상태에서 상대방이 (" + row + ", " + col + ") 위치에 돌을 두었습니다. " +
                 "이 수에 대한 친절한 격려 멘트를 작성해주세요. " +
-                "**이름을 부를 때는 가끔만 부르고, 대부분은 이름 없이 자연스럽게 격려하세요.**";
+                "**절대 이름을 언급하지 마세요. 이름 없이 자연스럽게 격려하세요.**";
 
         Map<String, Object> body = new HashMap<>();
         body.put("model", "gpt-4o-mini");
